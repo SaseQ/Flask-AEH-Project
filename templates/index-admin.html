@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Photo Manager</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Photo Manager</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/addphoto">Add Photo</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="/profile">Profile</a>
+            </li>
+          </ul>
+          <form class="d-flex">
+            <button onclick="window.location.href='/logout'" class="btn btn-outline-secondary me-2" type="button">Log Out</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <h1 class="w-25 pt-5 mx-auto text-center">Hi {{ name }}!</h1>
+
+    <hr class="card mx-auto mt-3 bg-black" style="width: 400px;"/>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">User ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">Preview</th>
+          <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in photo_list %}
+        <tr>
+          <th scope="row">{{ p.id }}</th>
+          <td>{{ p.userId }}</td>
+          <td>
+              {% if p.type == 1 %}
+                    <img src="../static/site_data/star.png" alt="star" style="width: 15px"/>
+              {% endif %}
+              {{ p.name }}
+          </td>
+          <td><a type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#preview{{ p.id }}">
+              Preview
+          </a></td>
+          <td><a type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit{{ p.id }}">
+              Edit
+          </a></td>
+          <td><a type="button" class="btn btn-sm btn-danger" href="/deletephoto/{{ p.id }}">Delete</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% for p in photo_list %}
+        <!-- Modal edit -->
+        <div class="modal fade" id="edit{{ p.id }}" tabindex="-1" aria-labelledby="edit{{ p.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Photo edit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="/editphoto/{{ p.id }}" method="post" enctype="multipart/form-data">
+                  <div class="modal-body">
+                      <p><b>User ID:</b> {{ p.userId }}</p>
+                      <div class="mb-3">
+                        <label for="PhotoName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="PhotoName" name="PhotoName" value="{{ p.name }}">
+                      </div>
+                      <div class="mb-3">
+                        <label for="PhotoPlace" class="form-label">Place</label>
+                        <input type="text" class="form-control" id="PhotoPlace" name="PhotoPlace" value="{{ p.place }}">
+                      </div>
+                      <div class="mb-3">
+                        <label for="PhotoDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="PhotoDate" name="PhotoDate" value="{{ p.date }}">
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <div class="form-check">
+                             {% if p.type == 1 %}
+                                <input class="form-check-input" type="radio" name="PhotoFavorite" id="Radio1" value="1"
+                                       checked>
+                             {% else %}
+                                <input class="form-check-input" type="radio" name="PhotoFavorite" id="Radio1" value="1">
+                             {% endif %}
+                              <label class="form-check-label" for="Radio1">
+                                Favorite
+                              </label>
+                          </div>
+                          <div class="form-check">
+                             {% if p.type == 0 %}
+                                <input class="form-check-input" type="radio" name="PhotoFavorite" id="Radio2" value="0"
+                                    checked>
+                             {% else %}
+                                <input class="form-check-input" type="radio" name="PhotoFavorite" id="Radio2" value="0">
+                             {% endif %}
+                              <label class="form-check-label" for="Radio2">
+                                None
+                              </label>
+                          </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="PhotoCategory" class="form-label">Category</label>
+                        <select class="form-select" aria-label="PhotoCategory" name="PhotoCategory" id="PhotoCategory">
+                          <option value="{{ p.category }}" selected>{{ p.category }}</option>
+                          <option value="Default">Default</option>
+                          <option value="Nature">Nature</option>
+                          <option value="People">People</option>
+                          <option value="Journey">Journey</option>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <label for="PhotoFile" class="form-label">Photo file</label>
+                        <input type="file" class="form-control" id="PhotoFile" name="PhotoFile">
+                      </div>
+                      <img src="/static/saved/{{ p.file }}" alt="img" style="max-width: 400px"/>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Edit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal preview -->
+        <div class="modal fade" id="preview{{ p.id }}" tabindex="-1" aria-labelledby="preview{{ p.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                {% if p.type == 1 %}
+                    <img src="../static/site_data/star.png" alt="star" style="width: 25px; margin-right: 10px"/>
+                {% endif %}
+                <h5 class="modal-title" id="exampleModalLabel">Photo preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <p><b>User ID:</b> {{ p.userId }}</p>
+                  <p><b>Name:</b> {{ p.name }}</p>
+                  <p><b>Place:</b> {{ p.place }}</p>
+                  <p><b>Date:</b> {{ p.date }}</p>
+                  <p><b>Category:</b> {{ p.category }}</p>
+                  <img src="/static/saved/{{ p.file }}" alt="img" style="max-width: 400px"/>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    {% endfor %}
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+  </body>
+</html>
